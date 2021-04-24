@@ -5,7 +5,7 @@
 Game Chess for task OO Design
 ***
 
-#####Steps
+##### Steps:
 
 - Describe requirements for a chosen system: functional and non-functional.
 - Design use cases for the system on the base of the requirements.
