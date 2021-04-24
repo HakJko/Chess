@@ -1,0 +1,68 @@
+	Цель: разработать приложение Chess для двоих игроков
+	
+1) Требования
+
+	Функциональные требования:
+	1) Приложение должно иметь доску на которой будет осуществляться "партия"
+	2) Прложение должно иметь фигуры 
+	3) Приложение должно расставлять фигуры на стартовые позиции при запуске новой игры
+	4) Каждый тип фигуры должен следовать определённым(свойственным для неё) инструкциям по передвижению, и "взятию"
+		а также должна быть реализована возможность "рокировки" королей 
+	5) В случае достижения "пешки" противополножного края доски должен быть предоставлен выбор для "превращения" пешки в фигуру на (ладья\конь\слон\ферзь)
+	6) Партия должна завершаться при условиях объявления "мата" одной из сторон или если один из партнёров решит намерно "сдать" партию
+	7) Партия должна завершаться на условиях "ничьей": при соглашении сторон, при возникновении "пата"(одна из сторон не имеет возможности хода),
+		при нехватке "материала", или троекратное повторение ходов одной из сторон 
+	
+	
+	Нефункциональные требования:
+	1) Приложение должно иметь меню
+	
+2) Сценарий использования\ use cases
+
+			Интерфейс
+	- Как игрок, я могу иметь меню(новая игра\отмена хода\выход), чтобы управлять состоянием приложения 
+	- Как игрок, я могу иметь возможность отмены хода, чтобы избежать неточностей
+	
+			Приложение
+	- Как игрок, я могу иметь выбор цвета фигур, перед началом партии
+	- Как игрок, я могу иметь возможность двигать фигуры, чтобы иметь динамику партии
+	- Как игрок, я могу использовать варианты "сдаться"\"предложить ничью". чтобы завершить партию
+	- Как игрок, я могу "сбивать" фигуры соперника, чтобы приблизить завершение партии
+	- Как игрок, я могу сделать "рокировку"
+	- Как игрок, я могу объявить "мат", чтобы выйграть партию
+	
+	============================================================================================================
+	
+	Goal: to develop a Chess app for two players
+	
+1) Requirements
+
+	Functional:
+	1) The application must have a board on which the "party" will be carried out
+	2) The application must have shapes
+	3) The application should place the pieces in their starting positions when starting a new game
+	4) Each type of figure must follow certain (specific to it) instructions for movement, and "capture"
+		and the possibility of "castling" of kings must also be implemented
+	5) If the "pawn" reaches the opposite edge of the board, a choice must be made to "turn" the pawn into a piece on (rook\knight\bishop\queen)
+	6) The game must end under the conditions of declaring a "checkmate" by one of the parties or if one of the partners decides to intentionally "pass" the game
+	7) The game must end on the terms of a "draw": if the parties agree, if a "stalemate" occurs(one of the parties does not have the opportunity to move),
+		if there is a lack of "material", or a triple repetition of the moves of one of the parties
+		
+	Non-functional:
+	1) The application must have a menu
+	
+2) Usage scenario\ use cases
+
+	Interface
+	- As a player, I can have a menu(new game\exit) to manage the app state
+	- As a player, I can have the option to cancel a move to avoid inaccuracies.
+
+	Application
+	- As a player, I can have a choice of the color of the pieces before starting the game
+	- As a player, I can be able to move the pieces to have the dynamics of the party
+	- As a player, I can use the options "give up" \ "offer a draw". to complete the game
+	- As a player, I can "knock down" the opponent's pieces to bring the end of the game closer
+	- As a player, I can make a "castling"
+	- As a player, I can declare "checkmate" to win the game
+	
+
