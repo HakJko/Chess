@@ -22,8 +22,8 @@ public class UndoMove
     public UndoMove(GameController gameController, Board CHESS_BOARD,
                     List<ChessBoardMoment> PREVIOUS_MOMENTS) {
         this.GC = gameController;
-        this.chessBoard = CHESS_BOARD;
-        this.previousMoments = PREVIOUS_MOMENTS;
+        this.CHESS_BOARD = CHESS_BOARD;
+        this.PREVIOUS_MOMENTS = PREVIOUS_MOMENTS;
     }
 
     public void undo() {
@@ -31,7 +31,7 @@ public class UndoMove
     }
 
     private void changeBoard(Change change) {
-        for (ChessBoardMoment c : previousMoments) {
+        for (ChessBoardMoment c : PREVIOUS_MOMENTS) {
             Set<Position> blah = c.getChessPieces().keySet();
             Set<Position> sortedSet = new TreeSet<>();
             for (Position p : blah) {
@@ -45,11 +45,11 @@ public class UndoMove
         setGameControllerStateInfo(desiredChessBoardMoment);
         setChessPieces(desiredChessBoardMoment);
         updateVisualBoard(getCurrentMoment().getChessPieces(), desiredChessBoardMoment.getChessPieces());
-        chessBoard.toggleCheckLabel(desiredChessBoardMoment.getGCState().isCurrentPlayerIsInCheck());
+        CHESS_BOARD.toggleCheckLabel(desiredChessBoardMoment.getGCState().isCurrentPlayerIsInCheck());
 
         if (GC.getPieceCurrentlyHeld() != null) {
             GC.nullifyPieceAndPossibleMoves();
-            chessBoard.resetAllBoardSquareColours();
+            CHESS_BOARD.resetAllBoardSquareColours();
         }
         if (change == Change.UNDO)
             moveNumber--;
@@ -88,23 +88,23 @@ public class UndoMove
         }
 
         for (Piece piece : piecesToDelete)
-            chessBoard.removePiece(piece.getPosition());
+            CHESS_BOARD.removePiece(piece.getPosition());
         for (Piece piece : piecesToAdd)
-            chessBoard.addPiece(piece);
+            CHESS_BOARD.addPiece(piece);
     }
 
     private void trimPreviousMoments() {
-        while (previousMoments.size() > (highestMoveNumber)) {
-            previousMoments.remove(previousMoments.size() - 1);
+        while (PREVIOUS_MOMENTS.size() > (highestMoveNumber)) {
+            PREVIOUS_MOMENTS.remove(PREVIOUS_MOMENTS.size() - 1);
         }
     }
 
     private ChessBoardMoment getCurrentMoment() {
-        return previousMoments.get(moveNumber);
+        return PREVIOUS_MOMENTS.get(moveNumber);
     }
 
     private ChessBoardMoment getRequiredMomentForUndo() {
-        ChessBoardMoment retMoment = previousMoments.get(moveNumber - 1);
+        ChessBoardMoment retMoment = PREVIOUS_MOMENTS.get(moveNumber - 1);
         return retMoment;
     }
 
@@ -114,7 +114,7 @@ public class UndoMove
 
     private void setChessPieces(ChessBoardMoment chessBoardMoment) {
         Map<Position, Piece> chessPieces = chessBoardMoment.getChessPieces();
-        chessBoard.setChessPieces(chessPieces);
+        CHESS_BOARD.setChessPieces(chessPieces);
     }
 
     public void setHighestMoveNumber(int newMoveNumber)
