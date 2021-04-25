@@ -1,4 +1,4 @@
-# Upskill_Lab_part2_OO_Design_Chess
+ Upskill_Lab_part2_OO_Design_Chess
 -------------------
 > The app is compiled by Ihar Koshman
 

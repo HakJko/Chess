@@ -1,12 +1,12 @@
 package com.epam.ik.entity.pieces;
 
-
 import com.epam.ik.entity.Position;
+import com.epam.ik.logic.Movement;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Piece
+public abstract class Piece implements Movement
 {
     protected String pieceName;
     protected Colour colour;
@@ -200,8 +200,6 @@ public abstract class Piece
     public String toString() {
         return pieceName + ", " + position + ", " + hasMoved;
     }
-
-    public abstract List<List<Position>> deriveAllMoves();
 
     public String getName() {
         return pieceName;

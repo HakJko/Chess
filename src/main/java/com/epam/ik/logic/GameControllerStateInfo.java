@@ -17,11 +17,11 @@ public class GameControllerStateInfo
     public List<Position> checkBlockingMoves;
 
     public GameControllerStateInfo() {
-        currentPlayerToMove = Piece.Colour.WHITE;
+        currentPlayerToMove = Colour.WHITE;
         moveNumber = 0;
     }
 
-    public GameControllerStateInfo(Piece.Colour currentPlayerToMove, List<Position> checkBlockingMoves,
+    public GameControllerStateInfo(Colour currentPlayerToMove, List<Position> checkBlockingMoves,
                                    boolean currentPlayerIsInCheck, Position enPassantPosition,
                                    int moveNumber) {
         this.currentPlayerToMove = currentPlayerToMove;
@@ -42,7 +42,7 @@ public class GameControllerStateInfo
         return new GameControllerStateInfo(currentPlayerToMove, newCheckBlockingMoves, currentPlayerIsInCheck, enPassantPosition, moveNumber);
     }
 
-    public Piece.Colour getCurrentPlayerToMove() {
+    public Colour getCurrentPlayerToMove() {
         return currentPlayerToMove;
     }
 

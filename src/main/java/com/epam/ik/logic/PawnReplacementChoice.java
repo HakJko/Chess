@@ -37,7 +37,6 @@ public class PawnReplacementChoice
                 case 1: choice = "Knight"; break;
                 case 2: choice = "Queen"; break;
                 case 3: choice = "Rook"; break;
-                default: new NullPointerException("not piece");
             }
             JButton button = new JButton(choice);
             button.addActionListener(generateActionListener(choice));
@@ -50,11 +49,9 @@ public class PawnReplacementChoice
         dialog.setContentPane(optionPane);
         dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         optionPane.addPropertyChangeListener(
-                new PropertyChangeListener() {
-                    public void propertyChange(PropertyChangeEvent e) {
-                        if (dialog.isVisible() && (e.getSource() == optionPane)) {
-                            dialog.setVisible(false);
-                        }
+                e -> {
+                    if (dialog.isVisible() && (e.getSource() == optionPane)) {
+                        dialog.setVisible(false);
                     }
                 });
         dialog.pack();
@@ -63,13 +60,7 @@ public class PawnReplacementChoice
     }
 
     private ActionListener generateActionListener(final String choice) {
-        return new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                implementPawnReplacementChoice(choice);
-            }
-        };
+        return e -> implementPawnReplacementChoice(choice);
     }
 
     private void implementPawnReplacementChoice(String choice) {

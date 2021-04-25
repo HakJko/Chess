@@ -9,9 +9,9 @@ import java.util.*;
 
 public class UndoMove
 {
-    private final GameController gameController;
-    private final Board chessBoard;
-    private final List<ChessBoardMoment> previousMoments;
+    private final GameController GC;
+    private final Board CHESS_BOARD;
+    private final List<ChessBoardMoment> PREVIOUS_MOMENTS;
     private int moveNumber;
     private int highestMoveNumber;
 
@@ -19,11 +19,11 @@ public class UndoMove
         UNDO
     }
 
-    public UndoMove(GameController gameController, Board chessBoard,
-                    List<ChessBoardMoment> previousMoments) {
-        this.gameController = gameController;
-        this.chessBoard = chessBoard;
-        this.previousMoments = previousMoments;
+    public UndoMove(GameController gameController, Board CHESS_BOARD,
+                    List<ChessBoardMoment> PREVIOUS_MOMENTS) {
+        this.GC = gameController;
+        this.chessBoard = CHESS_BOARD;
+        this.previousMoments = PREVIOUS_MOMENTS;
     }
 
     public void undo() {
@@ -47,8 +47,8 @@ public class UndoMove
         updateVisualBoard(getCurrentMoment().getChessPieces(), desiredChessBoardMoment.getChessPieces());
         chessBoard.toggleCheckLabel(desiredChessBoardMoment.getGCState().isCurrentPlayerIsInCheck());
 
-        if (gameController.getPieceCurrentlyHeld() != null) {
-            gameController.nullifyPieceAndPossibleMoves();
+        if (GC.getPieceCurrentlyHeld() != null) {
+            GC.nullifyPieceAndPossibleMoves();
             chessBoard.resetAllBoardSquareColours();
         }
         if (change == Change.UNDO)
@@ -59,8 +59,8 @@ public class UndoMove
             Map<Position, Piece> currentPieces,
             Map<Position, Piece> intendedPieces)
     {
-        Piece pieceToAdd = null;
-        Piece pieceToDelete = null;
+        Piece pieceToAdd;
+        Piece pieceToDelete;
 
         Set<Position> currentPositions = currentPieces.keySet();
         Set<Position> intendedPositions = intendedPieces.keySet();
@@ -126,7 +126,7 @@ public class UndoMove
 
     private void setGameControllerStateInfo(ChessBoardMoment chessBoardMoment) {
         GameControllerStateInfo gcState = chessBoardMoment.getGCState();
-        gameController.setGcState(gcState);
+        GC.setGcState(gcState);
     }
 
 }

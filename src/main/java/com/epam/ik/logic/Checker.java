@@ -16,7 +16,8 @@ public class Checker
     private int remainingNumberOfMoves = 100;
     private List<ChessBoardMoment> previousMoments = new ArrayList<>();
 
-    public enum StalemateOption {MANDATORY_PLAYER_CANT_MOVE, MANDATORY_TOO_FEW_PIECES,
+    public enum StalemateOption {
+        MANDATORY_PLAYER_CANT_MOVE, MANDATORY_TOO_FEW_PIECES,
         OPTIONAL_THREE_FOLD, OPTIONAL_FIFTY_MOVE, NOT_STALEMATE};
 
     public Checker(GameController gameController) {

@@ -1,9 +1,9 @@
 package com.epam.ik.entity;
 
+import com.epam.ik.GameController;
 import com.epam.ik.entity.pieces.King;
 import com.epam.ik.entity.pieces.Pawn;
 import com.epam.ik.entity.pieces.Piece;
-import com.epam.ik.GameController;
 import com.epam.ik.logic.NewGameChoice;
 import com.epam.ik.logic.PawnReplacementChoice;
 
@@ -13,8 +13,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 import static com.epam.ik.entity.pieces.Piece.Colour;
 
@@ -193,9 +193,7 @@ public class Board extends JFrame
 
         Set<Position> keySet = chessPieces.keySet();
         for (Position position : keySet) {
-            assert position != null;
             Piece fetchedPiece = chessPieces.get(position);
-            assert fetchedPiece != null;
             if (fetchedPiece.getColour() == currentPlayerToMove)
                 currentPlayersPieces.add(fetchedPiece);
         }

@@ -9,8 +9,8 @@ import com.epam.ik.logic.castling.CastlingPiecesMovementTracker;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 import static com.epam.ik.entity.pieces.Piece.Colour;
 import static com.epam.ik.logic.Checker.StalemateOption;
@@ -26,13 +26,11 @@ public final class GameController {
     private List<Position> possibleMoves;
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
+        SwingUtilities.invokeLater(() -> {
 
-                GameController gc = new GameController();
+            GameController gc = new GameController();
 
-                gc.go();
-            }
+            gc.go();
         });
     }
 
@@ -58,46 +56,35 @@ public final class GameController {
 
     public void squareClicked(Position clickedPosition) throws CloneNotSupportedException {
 
-        if (endGame.isGameOver())
+        if (endGame.isGameOver()) {
             return;
+        }
 
         Piece clickedPiece = chessBoard.getPieceAtPosition(clickedPosition);
 
-        if (clickedPiece == null && pieceCurrentlyHeld == null)
+        if (clickedPiece == null && pieceCurrentlyHeld == null) {
             return;
+        }
         if (clickedPiece == null && pieceCurrentlyHeld != null) {
             attemptPiecePlacement(clickedPosition);
             return;
         }
         if (clickedPiece != null && pieceCurrentlyHeld == null) {
-            assert possibleMoves == null;
             attemptToPickUpPiece(clickedPiece);
             return;
         }
-        // Therefore clickedPiece != null, pieceCurrentlyHeld != null
         attemptToCaptureSquare(clickedPosition);
     }
 
     private void attemptPiecePlacement(Position clickedPosition) throws CloneNotSupportedException {
-        assert !possibleMoves.contains(null);
 
-        if (!possibleMoves.contains(clickedPosition))
+        if (!possibleMoves.contains(clickedPosition)) {
             return;
+        }
 
-        // Piece will now definitely move
-
-        // Register initial position of pieces with the repeat move watcher.
         if (gcState.getMoveNumber() == 0 && undoMove.getHighestMoveNumber() == 0) {
             stalemateChecker.addChessBoardMoment(captureCurrentMoment());
         }
-
-		/*
-		  Clone everything. This is necessary because of the undo feature. Undo works by
-		  saving the game state after each move. If you click the undo button any number of
-		  you will go back to 'pointing' to a previous game state. Without cloning, you
-		  will change this saved game state if you click undo any number of times and then
-		  make a move.
-		 */
         gcState = gcState.clone();
         chessBoard.setChessPieces(chessBoard.getChessPiecesClone());
         pieceCurrentlyHeld = pieceCurrentlyHeld.clone();
@@ -105,7 +92,6 @@ public final class GameController {
 
         moveCurrentlyHeldPiece(clickedPosition);
 
-        // If the piece that moved was a pawn or a piece was captured, reset the 50 move counter.
         if (pieceCurrentlyHeld instanceof Pawn ||
                 stalemateChecker.getPreviousNumberOfChessPieces() != chessBoard.getNumberOfChessPieces()) {
             stalemateChecker.resetToFiftyMoves();
@@ -114,7 +100,6 @@ public final class GameController {
             stalemateChecker.decrementRemainingMoveNumber();
         }
 
-        // Update the stalemateChecker with the current number of chess pieces.
         stalemateChecker.setPreviousNumberOfChessPieces(chessBoard.getNumberOfChessPieces());
 
         nullifyPieceAndPossibleMoves();
@@ -188,7 +173,7 @@ public final class GameController {
         this.possibleMoves = getAllowedMovesForPiece(clickedPiece);
 
         if (gcState.currentPlayerIsInCheck && !(clickedPiece instanceof King)) {
-            List<Position> possibleMovesThatBlockCheck = new ArrayList<Position>();
+            List<Position> possibleMovesThatBlockCheck = new ArrayList<>();
             for (Position checkBlockingPosition : gcState.checkBlockingMoves) {
                 if (this.possibleMoves.contains(checkBlockingPosition)) {
                     possibleMovesThatBlockCheck.add(checkBlockingPosition);
@@ -196,15 +181,8 @@ public final class GameController {
             }
             this.possibleMoves = possibleMovesThatBlockCheck;
 
-
-            if (gcState.getCheckBlockingMoves() != null)
-                assert !gcState.checkBlockingMoves.contains(null);
-
-            // This is for the very unusual situation that an enemy pawn has moved forward twice to
-            // personally threaten the King, but the enemy pawn can be taken by en passant.
-            if (gcState.getCheckBlockingMoves() != null && gcState.checkBlockingMoves.contains(gcState.enPassantPosition)) {
-                // If the clicked piece is a Pawn adjacent to the en passant position then add the final
-                // position as a potential move to free the king from check.
+            if (gcState.getCheckBlockingMoves() != null && gcState.checkBlockingMoves.contains(gcState.enPassantPosition))
+            {
                 if (clickedPiece instanceof Pawn &&
                         ((Pawn)clickedPiece).adjacentToEnPassantPosition(gcState.enPassantPosition)) {
                     possibleMoves.add(((Pawn)clickedPiece).finalPositionAfterEnPassant(gcState.enPassantPosition));
@@ -220,27 +198,21 @@ public final class GameController {
     private List<Position> cullIllegalMoves(List<List<Position>> initialPossibleMoves,
                                             Piece clickedPiece) {
         List<Position> possibleMoves;
-        possibleMoves = new ArrayList<Position>();
-        List<Position> checkedLine = null;
-        // If the piece lies on a checked line, allow it to move anywhere on that checked line
-        // that its natural movement allows
+        possibleMoves = new ArrayList<>();
+        List<Position> checkedLine;
         if ((checkedLine = getCheckedLine(clickedPiece)) != null) {
             possibleMoves = addPositionsOnCheckedLine(initialPossibleMoves, checkedLine);
         }
-        // else add all moves on lines up to a piece (that piece is included if it's an opposing piece)
         else {
             for (List<Position> moveList : initialPossibleMoves) {
                 for (Position proposedPosition : moveList) {
                     if (chessBoard.getPieceAtPosition(proposedPosition) != null) {
                         if (chessBoard.getPieceAtPosition(proposedPosition).getColour()
                                 != gcState.currentPlayerToMove) {
-                            // Are allowed to take pieces of opposite colour.
                             possibleMoves.add(proposedPosition);
                         }
-                        // End of the line
                         break;
                     }
-                    // otherwise must be attempting to move into an empty square
                     possibleMoves.add(proposedPosition);
                 }
             }
@@ -250,18 +222,13 @@ public final class GameController {
     }
 
     public List<Position> getAllowedMovesForPiece(Piece chessPiece) {
-        List<Position> possibleMoves = new ArrayList<Position>();
+        List<Position> possibleMoves;
         List<List<Position>> initialPossibleMoves = chessPiece.deriveAllMoves();
         possibleMoves = cullIllegalMoves(initialPossibleMoves, chessPiece);
         addSpecialCases(possibleMoves, chessPiece);
-        assert !possibleMoves.contains(null);
         return possibleMoves;
     }
 
-    /*
-      Works out the line between the King and the piece. If there is such a line, it sees if
-      an opposing piece is on the end of it that would threated the King.
-     */
     private List<Position> getCheckedLine(Piece clickedPiece) {
         King ownKing = chessBoard.getKing(gcState.currentPlayerToMove);
         boolean isDiagonalLine = false;
@@ -285,11 +252,6 @@ public final class GameController {
         return null;
     }
 
-    /*
-      Calculates the line starting from the king that passes through the king. The line
-      continues until it hits a piece of either colour. Does not add the King's position
-      to the line.
-     */
     private List<Position> calculateSharedOpenLine(King king, Piece piece, boolean isDiagonalLine) {
         int xDiff = piece.getPosition().getXCoord() - king.getPosition().getXCoord();
         int yDiff = piece.getPosition().getYCoord() - king.getPosition().getYCoord();
@@ -298,7 +260,6 @@ public final class GameController {
 
         int xInc, yInc;
 
-        // If they share the same x or y coordinate, they're not on a diagonal line.
         if (xDiff == 0 || yDiff == 0)
             isDiagonalLine=(false);
         else
@@ -319,7 +280,7 @@ public final class GameController {
             yInc = -1;
 
         boolean passedThroughPieceFlag = false;
-        List<Position> retLine = new ArrayList<Position>();
+        List<Position> retLine = new ArrayList<>();
         Position positionToAdd = king.getPosition();
         while (true) {
             int xCoord = positionToAdd.getXCoord();
@@ -351,7 +312,7 @@ public final class GameController {
 
     private List<Position> addPositionsOnCheckedLine(List<List<Position>> initialPossibleMoves,
                                                      List<Position> checkedLine) {
-        List<Position> possibleMoves = new ArrayList<Position>();
+        List<Position> possibleMoves = new ArrayList<>();
         for (List<Position> positionList : initialPossibleMoves) {
             for (Position position : positionList) {
                 if (checkedLine.contains(position)) {
@@ -365,28 +326,24 @@ public final class GameController {
     private void cullSpecialCases(List<Position> possibleMoves,
                                   Piece clickedPiece) {
         Position clickedPiecePosition = clickedPiece.getPosition();
-        Set<Position> positionsToDelete = new HashSet<Position>();
+        Set<Position> positionsToDelete = new HashSet<>();
         if (clickedPiece instanceof Pawn) {
-            // Potentially take away its forward move(s)
             int forwardMove = (gcState.getCurrentPlayerToMove() == Colour.WHITE) ? 1 : -1;
 
             Position forwardPosition = Position.createPosition(clickedPiecePosition.getXCoord(),
                     clickedPiecePosition.getYCoord() + forwardMove);
             if (chessBoard.getPieceAtPosition(forwardPosition) != null) {
                 positionsToDelete.add(forwardPosition);
-                // Cannot move forward two spaces if the space ahead is checked.
                 positionsToDelete.add(Position.createPosition(clickedPiecePosition.getXCoord(),
                         clickedPiecePosition.getYCoord() + 2 * forwardMove));
             }
 
-            // If the first space ahead is free, may still need to cull the second space ahead.
             Position forwardPosition2 = Position.createPosition(clickedPiecePosition.getXCoord(),
                     clickedPiecePosition.getYCoord() + 2 * forwardMove);
             if (chessBoard.getPieceAtPosition(forwardPosition2) != null) {
                 positionsToDelete.add(forwardPosition2);
             }
 
-            // Potentially take away forward-diagonal moves
             for (int xDisp = -1; xDisp < 2; xDisp += 2) {
                 Position forwardDiagonal = Position.createPosition(clickedPiecePosition.getXCoord() + xDisp,
                         clickedPiecePosition.getYCoord() + forwardMove);
@@ -397,7 +354,6 @@ public final class GameController {
             }
         }
 
-        // Don't allow the King to move into a checked squares (separate from the castle-ing code)
         if (clickedPiece instanceof King) {
             for (Position position : possibleMoves) {
                 if (positionIsChecked(position)) {
@@ -406,13 +362,11 @@ public final class GameController {
             }
         }
 
-        // There may be a less clunky way of doing this. I added it, because removing the position
-        // in the middle of the above loop caused a ConcurrentModificationException.
         for (Position delPosition : positionsToDelete) {
             possibleMoves.remove(delPosition);
         }
     }
-    // This is for potentially adding castling and en passant.
+
     private void addSpecialCases(List<Position> possibleMoves, Piece clickedPiece) {
         Position clickedPiecePos = clickedPiece.getPosition();
         if (clickedPiece instanceof King) {
@@ -436,7 +390,6 @@ public final class GameController {
 
         if (gcState.getEnPassantPosition() != null && clickedPiece instanceof Pawn) {
             Pawn clickedPawn = (Pawn)clickedPiece;
-            // The required y coordinate of the pawn that would perform the en passant.
             int requiredYCoord = (gcState.getCurrentPlayerToMove() == Colour.WHITE) ? 5 : 4;
             if (clickedPiecePos.getYCoord() != requiredYCoord)
                 return;
@@ -458,19 +411,13 @@ public final class GameController {
             replacePiece(clickedPosition);
             return;
         }
-        // If the player has tried to take one of their own pieces, do nothing.
         if (chessBoard.getPieceAtPosition(clickedPosition).getColour() == gcState.currentPlayerToMove) {
             return;
         }
         attemptPiecePlacement(clickedPosition);
     }
 
-    /*
-      A position is also considered to be checked when the king may temporarily be blocking check in that
-      position, but if he moves into that position, he will still be in check.
-     */
     private boolean positionIsChecked(Position position) {
-        // Check for threatening knights
         List<Position> knightAttackPositions = Knight.getKnightAttackPositions(position);
         for (Position knightPosition : knightAttackPositions) {
             Piece possibleKnight = chessBoard.getPieceAtPosition(knightPosition);
@@ -480,29 +427,19 @@ public final class GameController {
                 return true;
         }
 
-        // Check for threatening Bishops, Rooks, Queens, Kings and Pawns.
         List<List<Position>> threateningLines = getThreateningLines(position);
         if (threateningLines.size() > 0)
             return true;
         return false;
     }
 
-    /* This method will also get called when deciding if it's a checkmate.
-      If the king can't move anywhere without being in check, this method will get called.
-      If there's more than one threatening line, it's checkmate. If there's just one
-      threatening line, each piece on the board will have to be called to see if it can
-      move onto the line (the line being squares including the attacking piece's position,
-      excluding the position that the king is on). If none can, it's checkmate.
-      A threatening line includes a pawn that's attacking the king.
-     */
     private List<List<Position>> getThreateningLines(Position position) {
-        int x = 0, y = 0;
-        List<List<Position>> listHolder = new ArrayList<List<Position>>();
+        int x , y;
+        List<List<Position>> listHolder = new ArrayList<>();
         for (int xDisp = -1; xDisp < 2; xDisp++) {
             for (int yDisp = -1; yDisp < 2; yDisp++) {
-                List<Position> line = new ArrayList<Position>();
+                List<Position> line = new ArrayList<>();
                 if (xDisp == 0 && yDisp == 0) {
-                    // No line for zero x and zero y displacement.
                     continue;
                 }
                 x = position.getXCoord() + xDisp;
@@ -510,33 +447,20 @@ public final class GameController {
                 for (;; x += xDisp, y += yDisp) {
                     Position nextPosition = Position.createPosition(x, y);
                     if (nextPosition == null) {
-                        // line has gone off the board without finding a threatening piece.
                         break;
                     }
                     Piece threateningPiece = chessBoard.getPieceAtPosition(nextPosition);
 
-					/* The second part of this if statement was added as an alternative to the hack of making
-					 the king invisible. In short, we don't want the friendly King to be seen as blocking
-					 check at a position. Because if he is, then he will be allowed to move into it, but
-					  he would still be in check following that move.
-
-					  An example is if a Rook has put the king in check. Without
-					  temporarily making the King invisible here, the program would allow the king to move sideways
-					  yet he would still be in check following this move.
-					 */
                     if (threateningPiece == null ||
                             (threateningPiece.getColour() == gcState.getCurrentPlayerToMove() && threateningPiece instanceof King)) {
-                        // continue following the line
                         line.add(nextPosition);
                         continue;
                     }
 
                     if (threateningPiece.getColour() == gcState.currentPlayerToMove) {
-                        // End of line is a friendly piece
                         break;
                     }
 
-                    // If a vertical/horizontal line
                     if (xDisp == 0 || yDisp == 0) {
                         if (threateningPiece instanceof Rook || threateningPiece instanceof Queen
                                 || (threateningPiece instanceof King && (Math.abs(position.getXCoord() - x) == 1
@@ -546,7 +470,6 @@ public final class GameController {
                         }
                     }
                     else {
-                        // must be a diagonal line
                         if (threateningPiece instanceof Bishop || threateningPiece instanceof Queen
                                 || (threateningPiece instanceof King && (Math.abs(position.getXCoord() - x) == 1
                                 && Math.abs(position.getYCoord() - y) == 1))
@@ -563,16 +486,11 @@ public final class GameController {
         return listHolder;
     }
 
-    /*
-      Short piece of logic called from getThreateningLines. Have already established that the
-      pawn is the opposite colour to the current player.
-     */
     private boolean isThreateningPawn(
             Pawn pawn, Position position) {
         Position pawnPosition = pawn.getPosition();
         int xDiff = pawnPosition.getXCoord() - position.getXCoord();
         int yDiff = pawnPosition.getYCoord() - position.getYCoord();
-        // If the pawn is not directly diagonal, it can't be threatening.
         if (Math.abs(xDiff) != 1 || Math.abs(yDiff) != 1) {
             return false;
         }
@@ -603,7 +521,6 @@ public final class GameController {
         Piece rookToCastle = chessBoard.getPieceAtPosition(rookPosition);
         Position rookDestination = Position.createPosition((rookPosition.getXCoord() == 1) ? 4 : 6,
                 rookPosition.getYCoord());
-        // King will be set as having moved when the method returns
         rookToCastle.markAsHavingMoved();
         resetColoursAfterMove();
         chessBoard.movePiece(pieceCurrentlyHeld, clickedPosition);
@@ -626,18 +543,16 @@ public final class GameController {
         List<List<Position>> threateningLines = getThreateningLines(kingInCheck.getPosition());
         List<Position> possibleKingMoves = getAllowedMovesForPiece(kingInCheck);
 
-        // Definite checkmate
         if (threateningLines.size() > 1 && possibleKingMoves.size() == 0)
             return true;
 
-        gcState.checkBlockingMoves = new ArrayList<Position>();
+        gcState.checkBlockingMoves = new ArrayList<>();
         if (threateningLines.size() == 1) {
             for (Position checkBlockingPosition : threateningLines.get(0)) {
                 gcState.checkBlockingMoves.add(checkBlockingPosition);
             }
         }
 
-        // Add potential knight threats which are not covered by threatening lines.
         List<Position> knightAttackPositions = Knight.getKnightAttackPositions(kingInCheck.getPosition());
         for (Position knightPosition : knightAttackPositions) {
             Piece possibleKnight = chessBoard.getPieceAtPosition(knightPosition);
@@ -647,28 +562,22 @@ public final class GameController {
                 gcState.checkBlockingMoves.add(knightPosition);
         }
 
-        // Can return at this point if the king himself can move out of check
         if (possibleKingMoves.size() > 0)
             return false;
 
-        // Otherwise, may still be checkmate. Need to see if any of the pieces can move onto one of
-        // the checkBlockingPosition's
         List<Piece> currentPlayersPieces = chessBoard.getPlayersPieces(gcState.currentPlayerToMove);
         for (Piece chessPiece : currentPlayersPieces) {
             if (chessPiece instanceof King)
-                // King cannot block the check of himself.
                 continue;
             List<Position> allowedMoves = getAllowedMovesForPiece(chessPiece);
 
             for (Position checkBlockingMove : gcState.checkBlockingMoves) {
                 if (allowedMoves.contains(checkBlockingMove)) {
-                    // It's possible for the check to be blocked, so not checkmate.
                     return false;
                 }
             }
         }
 
-        // Final check to see if attacking pawn can be taken by en passant
         if (gcState.checkBlockingMoves.size() == 1 && gcState.checkBlockingMoves.get(0).equals(gcState.enPassantPosition)) {
             for (int i = -1; i < 2; i += 2) {
                 Position potentialFriendlyPawnPosition = Position.createPosition(gcState.enPassantPosition.getXCoord() + i,
@@ -682,7 +591,6 @@ public final class GameController {
             }
         }
 
-        // No moves can block the threatening line, so checkmate.
         return true;
     }
 
@@ -701,7 +609,6 @@ public final class GameController {
                 = constructCastlingPiecesMovementTracker();
         GameControllerStateInfo clonedGCState = new GameControllerStateInfo(
                 gcState.currentPlayerToMove,
-                // Need to clone the things that aren't immutable.
                 duplicateArrayList(gcState.checkBlockingMoves),
                 gcState.currentPlayerIsInCheck,
                 gcState.enPassantPosition,
@@ -718,11 +625,9 @@ public final class GameController {
         }
         int counter = 0;
 
-        // Temporarily change gcState.getCurrentPlayerToMove() back to what it was
         gcState.currentPlayerToMove = (gcState.currentPlayerToMove == Colour.WHITE) ? Colour.BLACK : Colour.WHITE;
 
         for (int yCoord = 1; yCoord <= 8; yCoord += 7) {
-            // gcState.getCurrentPlayerToMove() has already been changed to be the opposite colour
             if (gcState.getCurrentPlayerToMove() == Colour.WHITE && yCoord == 8
                     || gcState.getCurrentPlayerToMove() == Colour.BLACK && yCoord == 1) {
                 castlingOpportunitiesArray[counter] = null;
@@ -747,7 +652,6 @@ public final class GameController {
             }
         }
 
-        // Put it back to what it was before
         gcState.currentPlayerToMove = (gcState.getCurrentPlayerToMove() == Colour.WHITE) ? Colour.BLACK : Colour.WHITE;
 
         return new CastlingOpportunities(castlingOpportunitiesArray[0], castlingOpportunitiesArray[1], castlingOpportunitiesArray[3], castlingOpportunitiesArray[2]);
@@ -755,17 +659,14 @@ public final class GameController {
 
     private boolean canCastleBetweenPositions(Position kingPosition, Position rookPosition, int direction) {
         Piece potentialRook = chessBoard.getPieceAtPosition(rookPosition);
-        // Can't castle with a Rook that's already moved.
         if (potentialRook == null || !(potentialRook instanceof Rook) || potentialRook.hasMoved())
             return false;
-        // Check that the two squares adjacent to the King are empty and unchecked
         for (int i = 1; i < 3; i++) {
             Position nextSquare = Position.createPosition(King.KING_POS + i * direction,
                     rookPosition.getYCoord());
             if (chessBoard.getPieceAtPosition(nextSquare) != null || positionIsChecked(nextSquare))
                 return false;
         }
-        // Positions (2, 1) and (2, 8) must be empty but may be checked.
         if (direction == -1 &&
                 chessBoard.getPieceAtPosition(Position.createPosition(2, rookPosition.getYCoord())) != null) {
             return false;
@@ -778,9 +679,9 @@ public final class GameController {
         int counter = 0;
         for (int yCoord = 1; yCoord <= 8; yCoord += 7) {
             for (int xCoord = 1; xCoord != 12; xCoord += 4, counter++) {
-                // Really I just want to do for xCoord in 1 5 8
-                if (xCoord == 9)
+                if (xCoord == 9) {
                     xCoord = 8;
+                }
                 String requiredPiece = (xCoord == 5) ? "King" : "Rook";
                 Position position = Position.createPosition(xCoord, yCoord);
                 Piece pieceAtPosition = chessBoard.getPieceAtPosition(position);
@@ -792,7 +693,7 @@ public final class GameController {
         return new CastlingPiecesMovementTracker(inputs);
     }
     private List<Position> duplicateArrayList(List<Position> listToDuplicate) {
-        List<Position> retList = new ArrayList<Position>();
+        List<Position> retList = new ArrayList<>();
         if (listToDuplicate == null)
             return retList;
         for (Position entry : listToDuplicate) {

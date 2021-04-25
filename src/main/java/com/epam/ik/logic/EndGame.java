@@ -3,7 +3,6 @@ package com.epam.ik.logic;
 import javax.swing.*;
 
 import static com.epam.ik.entity.pieces.Piece.Colour;
-import static com.epam.ik.logic.Checker.StalemateOption;
 
 public class EndGame
 {
@@ -34,19 +33,19 @@ public class EndGame
                 winner == Colour.WHITE ? WHITE_CHECKMATE : BLACK_CHECKMATE);
     }
 
-    public void declareMandatoryStalemate(StalemateOption stalemateOption, Colour currentPlayerToMove) {
+    public void declareMandatoryStalemate(Checker.StalemateOption stalemateOption, Colour currentPlayerToMove) {
         gameOver = true;
         String message = null;
-        if (stalemateOption == StalemateOption.MANDATORY_PLAYER_CANT_MOVE)
+        if (stalemateOption == Checker.StalemateOption.MANDATORY_PLAYER_CANT_MOVE)
             message = currentPlayerToMove.getName() + PLAYER_CANT_MOVE_STALEMATE;
         else
             message = TOO_FEW_PIECES_STALEMATE;
         JOptionPane.showMessageDialog(chessBoard, message);
     }
 
-    public void informThatPlayerMayDeclareStalemate(StalemateOption stalemateOption, Colour playerToChoose) {
-        String message = null;
-        if (stalemateOption == StalemateOption.OPTIONAL_THREE_FOLD)
+    public void informThatPlayerMayDeclareStalemate(Checker.StalemateOption stalemateOption, Colour playerToChoose) {
+        String message;
+        if (stalemateOption == Checker.StalemateOption.OPTIONAL_THREE_FOLD)
             message = THREE_FOLD_MSG_START + playerToChoose.getName() + OPTIONAL_MSG_END;
         else
             message = FIFTY_MOVE_MSG_START + playerToChoose.getName() + OPTIONAL_MSG_END;
