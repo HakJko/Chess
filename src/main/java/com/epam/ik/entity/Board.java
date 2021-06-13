@@ -7,12 +7,15 @@ import com.epam.ik.entity.pieces.Piece;
 import com.epam.ik.logic.NewGameChoice;
 import com.epam.ik.logic.PawnReplacementChoice;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.InputStream;
 import java.util.List;
 import java.util.*;
 
@@ -340,7 +343,7 @@ public class Board extends JFrame
     }
 
     private void paintBoardSquare(String pieceName, Position position) {
-        new NullPointerException("needs further development");
+//        new NullPointerException("needs further development");
 //        InputStream inIcon = ClassLoader.getSystemResourceAsStream(pieceName+".gif");
 //        assert inIcon != null : "inIcon should not be null.";
 //        BufferedImage imgIcon = null;
@@ -348,10 +351,10 @@ public class Board extends JFrame
 //        try {
 //            imgIcon = ImageIO.read(inIcon);
 //        } catch (Exception e) {
-//            System.out.println("Error: Could not locate \"" + pieceName + ".gif\" in the current folder.");
+////            System.out.println("Error: Could not locate \"" + pieceName + ".gif\" in the current folder.");
 //            assert false;
 //        }
-//        pieceToChessArraySquare(position).setIcon(new ImageIcon(imgIcon));
+        pieceToChessArraySquare(position).setIcon(new ImageIcon("src/main/resources/images/"+pieceName+".gif"));
     }
 
     private Position arrayToBoard(int xCoord, int yCoord) {
