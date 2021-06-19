@@ -2,7 +2,7 @@
 -------------------
 > The app is compiled by Ihar Koshman
 ***
-######Game Chess for task OO Design
+###### Game Chess for task OO Design
 ***
 
 ##### Steps:
@@ -14,7 +14,7 @@
 - Optionally, convert diagrams into Java code.
 
 ***
-######Game Chess for task Relational Databases Foundations [ER Design]
+###### Game Chess for task Relational Databases Foundations [ER Design]
 ***
 
 ##### Steps:
