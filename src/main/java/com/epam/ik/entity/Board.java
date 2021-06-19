@@ -1,47 +1,41 @@
 package com.epam.ik.entity;
 
 import com.epam.ik.GameController;
-import com.epam.ik.entity.pieces.King;
-import com.epam.ik.entity.pieces.Pawn;
+import com.epam.ik.entity.pieces.impl.King;
+import com.epam.ik.entity.pieces.impl.Pawn;
 import com.epam.ik.entity.pieces.Piece;
 import com.epam.ik.logic.NewGameChoice;
 import com.epam.ik.logic.PawnReplacementChoice;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
-import java.io.InputStream;
 import java.util.List;
 import java.util.*;
 
 import static com.epam.ik.entity.pieces.Piece.Colour;
 
-public class Board extends JFrame
-{
+public class Board extends JFrame {
     private static final int CHESSBOARD_WIDTH = 8;
     private static final int CHESSBOARD_LENGTH = 8;
 
-    private GameController gc;
-    private Board chessBoard;
-    private JPanel contentPanel = new JPanel();
-    private JPanel gridJPanel = new JPanel();
-    private JToolBar soleJToolBar = new JToolBar();
-    private JButton newGameButton = new JButton("New game");
-    private JButton undoButton = new JButton("Undo");
-    private JLabel checkNotifier = new JLabel("CHECK  !!!");
-    private JLabel[][] chessSquareArray = new JLabel[CHESSBOARD_LENGTH][CHESSBOARD_WIDTH];
+    private final GameController gc;
+    private final Board chessBoard;
+    private final JPanel gridJPanel = new JPanel();
+    private final JToolBar soleJToolBar = new JToolBar();
+    private final JButton newGameButton = new JButton("New game");
+    private final JButton undoButton = new JButton("Undo");
+    private final JLabel checkNotifier = new JLabel("CHECK  !!!");
+    private final JLabel[][] chessSquareArray = new JLabel[CHESSBOARD_LENGTH][CHESSBOARD_WIDTH];
 
     private Map<Position, Piece> chessPieces;
 
     public Board(final GameController gc) {
         this.gc = gc;
         chessBoard = this;
-        setSize(600, 600);
+        setSize(800, 800);
+        JPanel contentPanel = new JPanel();
         setContentPane(contentPanel);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -51,21 +45,15 @@ public class Board extends JFrame
         initializeSoleJToolBar();
         contentPanel.add(soleJToolBar, BorderLayout.NORTH);
 
-        newGameButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                NewGameChoice sole = new NewGameChoice(chessBoard);
-                sole.show();
-            }
+        newGameButton.addActionListener(actionEvent -> {
+            NewGameChoice sole = new NewGameChoice(chessBoard);
+            sole.show();
         });
 
-        undoButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                gc.undo();
-                if (gc.getMoveNumber() == 0) {
-                    undoButton.setEnabled(false);
-                }
+        undoButton.addActionListener(actionEvent -> {
+            gc.undo();
+            if (gc.getMoveNumber() == 0) {
+                undoButton.setEnabled(false);
             }
         });
 
@@ -79,8 +67,7 @@ public class Board extends JFrame
         int yCoord = position.getYCoord();
         if (Math.abs(xCoord - yCoord) % 2 == 0) {
             return Colour.BLACK;
-        }
-        else {
+        } else {
             return Colour.WHITE;
         }
     }
@@ -100,8 +87,7 @@ public class Board extends JFrame
                 JLabel square = chessSquareArray[i][j];
                 if (square.getName().charAt(0) == 'g') {
                     square.setBackground(new Color(210, 105, 30));
-                }
-                else {
+                } else {
                     square.setBackground(Color.WHITE);
                 }
             }
@@ -109,7 +95,7 @@ public class Board extends JFrame
     }
 
     public void initialiseBoard() {
-        chessPieces = new HashMap<Position, Piece>();
+        chessPieces = new HashMap<>();
         addInitialSixteenPieces();
         Set<Position> positionSet = chessPieces.keySet();
         for (Position position : positionSet) {
@@ -133,10 +119,6 @@ public class Board extends JFrame
     }
 
     public void setPieceAtPosition(Position position, Piece newPiece) {
-        assert position != null;
-        assert newPiece != null;
-        assert position.equals(newPiece.getPosition()): "position = " + position
-                + ", and newPiece.getPosition() = " + newPiece.getPosition();
         chessPieces.put(position, newPiece);
     }
 
@@ -154,23 +136,22 @@ public class Board extends JFrame
         Set<Position> chessPieceSet = chessPieces.keySet();
         for (Position position : chessPieceSet) {
             Piece chessPiece = chessPieces.get(position);
-            if (chessPiece instanceof King && chessPiece.getColour() == currentPlayerToMove)
-                return (King)chessPiece;
+            if (chessPiece instanceof King && chessPiece.getColour() == currentPlayerToMove) {
+                return (King) chessPiece;
+            }
         }
-        assert false : "There should always be a king of either colour";
         return null;
     }
 
     public void resetBoardSquareColour(Position position) {
         JLabel square = pieceToChessArraySquare(position);
-        if (square.getName().charAt(0) == 'g')
+        if (square.getName().charAt(0) == 'g') {
             square.setBackground(new Color(210, 105, 30));
-        else
+        } else
             square.setBackground(Color.WHITE);
     }
 
-    public void movePiece(Piece pieceCurrentlyHeld,
-                          Position clickedPosition) {
+    public void movePiece(Piece pieceCurrentlyHeld, Position clickedPosition) {
         removePiece(pieceCurrentlyHeld.getPosition());
         pieceCurrentlyHeld.setPosition(clickedPosition);
         addPiece(pieceCurrentlyHeld);
@@ -192,13 +173,14 @@ public class Board extends JFrame
     }
 
     public java.util.List<Piece> getPlayersPieces(Colour currentPlayerToMove) {
-        List<Piece> currentPlayersPieces = new ArrayList<Piece>();
+        List<Piece> currentPlayersPieces = new ArrayList<>();
 
         Set<Position> keySet = chessPieces.keySet();
         for (Position position : keySet) {
             Piece fetchedPiece = chessPieces.get(position);
-            if (fetchedPiece.getColour() == currentPlayerToMove)
+            if (fetchedPiece.getColour() == currentPlayerToMove) {
                 currentPlayersPieces.add(fetchedPiece);
+            }
         }
         return currentPlayersPieces;
     }
@@ -214,7 +196,7 @@ public class Board extends JFrame
     }
 
     public Map<Position, Piece> getChessPiecesClone() {
-        Map<Position, Piece> chessPiecesClone =  new HashMap<Position, Piece>();
+        Map<Position, Piece> chessPiecesClone = new HashMap<>();
         Set<Position> keySet = chessPieces.keySet();
         for (Position position : keySet) {
             chessPiecesClone.put(position, chessPieces.get(position).clone());
@@ -254,40 +236,29 @@ public class Board extends JFrame
     }
 
     private void initializeChessSquareArray() {
-        boolean bool1 = false, bool2 = false;
+        boolean bool1 = false;
+        boolean bool2 = false;
+
         for (int i = 0; i < CHESSBOARD_LENGTH; i++) {
             for (int j = 0; j < CHESSBOARD_WIDTH; j++) {
-                chessSquareArray[i][j] = new JLabel((Icon)null, JLabel.CENTER);
+                chessSquareArray[i][j] = new JLabel((Icon) null, JLabel.CENTER);
                 chessSquareArray[i][j].setOpaque(true);
-                if (bool1 ^ bool2) {
+                if (bool2 ^ bool1) {
                     chessSquareArray[i][j].setBackground(new Color(210, 105, 30));
                     chessSquareArray[i][j].setName("gray" + i + j);
-                }
-                else {
+                } else {
                     chessSquareArray[i][j].setBackground(Color.WHITE);
                     chessSquareArray[i][j].setName("white" + i + j);
                 }
                 gridJPanel.add(chessSquareArray[i][j]);
-                bool2 = (bool2 == true) ? false : true;
+
+                bool2 = !bool2;
 
                 chessSquareArray[i][j].addMouseListener(new MouseAdapter() {
-//					@Override
-//					public void mouseEntered(MouseEvent mouseEvent) {
-//						mouseEvent.getComponent().setBackground(Color.GREEN);
-//					}
-
-//					@Override
-//					public void mouseExited(MouseEvent mouseEvent) {
-//						Component currentJLabel = (JLabel) mouseEvent.getComponent();
-//						if (currentJLabel.getName().charAt(0) == 'g')
-//							currentJLabel.setBackground(Color.GRAY);
-//						else
-//							currentJLabel.setBackground(Color.WHITE);
-//					}
 
                     @Override
                     public void mouseReleased(MouseEvent mouseEvent) {
-                        Component currentJLabel = (JLabel) mouseEvent.getComponent();
+                        Component currentJLabel = mouseEvent.getComponent();
                         String labelName = currentJLabel.getName();
                         Position clickedPosition = arrayToBoard(labelName.charAt(labelName.length() - 2) - '0',
                                 labelName.charAt(labelName.length() - 1) - '0');
@@ -299,13 +270,14 @@ public class Board extends JFrame
                     }
                 });
             }
-            bool1 = (bool1 == true) ? false : true;
+            bool1 = !bool1;
         }
     }
 
     private void addInitialSixteenPieces() {
-        Piece.Colour colour = null;
-        int xCoord = 0, yCoord = 0;
+        Piece.Colour colour;
+        int xCoord;
+        int yCoord;
 
         for (int i = 1; i <= 2; i++) {
             colour = (i == 1) ? Colour.WHITE : Colour.BLACK;
@@ -322,13 +294,16 @@ public class Board extends JFrame
             for (xCoord = 1; xCoord <= CHESSBOARD_WIDTH; xCoord++) {
                 Position position = Position.createPosition(xCoord, yCoord);
                 switch (xCoord) {
-                    case 1: case 8:
+                    case 1:
+                    case 8:
                         setPieceAtPosition(position, Piece.createChessPiece("Rook", colour, position));
                         break;
-                    case 2: case 7:
+                    case 2:
+                    case 7:
                         setPieceAtPosition(position, Piece.createChessPiece("Knight", colour, position));
                         break;
-                    case 3: case 6:
+                    case 3:
+                    case 6:
                         setPieceAtPosition(position, Piece.createChessPiece("Bishop", colour, position));
                         break;
                     case 4:
@@ -343,18 +318,7 @@ public class Board extends JFrame
     }
 
     private void paintBoardSquare(String pieceName, Position position) {
-//        new NullPointerException("needs further development");
-//        InputStream inIcon = ClassLoader.getSystemResourceAsStream(pieceName+".gif");
-//        assert inIcon != null : "inIcon should not be null.";
-//        BufferedImage imgIcon = null;
-//
-//        try {
-//            imgIcon = ImageIO.read(inIcon);
-//        } catch (Exception e) {
-////            System.out.println("Error: Could not locate \"" + pieceName + ".gif\" in the current folder.");
-//            assert false;
-//        }
-        pieceToChessArraySquare(position).setIcon(new ImageIcon("src/main/resources/images/"+pieceName+".gif"));
+        pieceToChessArraySquare(position).setIcon(new ImageIcon("src/main/resources/images/" + pieceName + ".gif"));
     }
 
     private Position arrayToBoard(int xCoord, int yCoord) {

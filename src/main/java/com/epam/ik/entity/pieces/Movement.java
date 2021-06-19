@@ -1,4 +1,4 @@
-package com.epam.ik.logic;
+package com.epam.ik.entity.pieces;
 
 import com.epam.ik.entity.Position;
 

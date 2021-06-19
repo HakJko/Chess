@@ -7,12 +7,11 @@ import com.epam.ik.logic.castling.CastlingPiecesMovementTracker;
 
 import java.util.Map;
 
-public class ChessBoardMoment
-{
-    private Map<Position, Piece> chessPieces;
-    private CastlingOpportunities castlingOpportunities;
-    private CastlingPiecesMovementTracker castlingPiecesMovementTracker;
-    private GameControllerStateInfo gcState;
+public class ChessBoardMoment {
+    private final Map<Position, Piece> chessPieces;
+    private final CastlingOpportunities castlingOpportunities;
+    private final CastlingPiecesMovementTracker castlingPiecesMovementTracker;
+    private final GameControllerStateInfo gcState;
 
     public ChessBoardMoment(Map<Position, Piece> chessPieces,
                             CastlingOpportunities castlingOpportunities,
@@ -26,11 +25,13 @@ public class ChessBoardMoment
 
     @Override
     public boolean equals(Object candidate) {
-        if (this == candidate)
+        if (this == candidate) {
             return true;
+        }
 
-        if (!(candidate instanceof ChessBoardMoment))
+        if (!(candidate instanceof ChessBoardMoment)) {
             return false;
+        }
 
         ChessBoardMoment confirmed = (ChessBoardMoment) candidate;
         boolean sameCastlingOpportunities = getCastlingOpportunities().equals(confirmed.getCastlingOpportunities());
@@ -38,6 +39,7 @@ public class ChessBoardMoment
         boolean sameEnPassantPosition = getEnPassantPosition() != null && getEnPassantPosition().equals(confirmed.getEnPassantPosition())
                 || getEnPassantPosition() == null && confirmed.getEnPassantPosition() == null;
         boolean samePiecePositions = getChessPieces().equals(confirmed.getChessPieces());
+
         return sameCastlingOpportunities && sameCastlingPiecesMovementTracker
                 && sameEnPassantPosition && samePiecePositions;
     }

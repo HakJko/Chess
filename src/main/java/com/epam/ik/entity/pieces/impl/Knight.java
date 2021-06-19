@@ -1,27 +1,15 @@
-package com.epam.ik.entity.pieces;
+package com.epam.ik.entity.pieces.impl;
 
 import com.epam.ik.entity.Position;
+import com.epam.ik.entity.pieces.Piece;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Knight extends Piece
-{
+public class Knight extends Piece {
     public Knight(Colour colour, Position position) {
         super(colour, position);
         pieceName = colour.getName() + "Knight";
-    }
-
-    @Override
-    public List<List<Position>> deriveAllMoves() {
-        List<List<Position>> listHolder = new ArrayList<>();
-        List<Position> knightPositions = Knight.getKnightAttackPositions(position);
-        for (Position position : knightPositions) {
-            List<Position> moveList = new ArrayList<>();
-            moveList.add(position);
-            listHolder.add(moveList);
-        }
-        return listHolder;
     }
 
     public static List<Position> getKnightAttackPositions(Position position) {
@@ -36,5 +24,17 @@ public class Knight extends Piece
             }
         }
         return knightPositions;
+    }
+
+    @Override
+    public List<List<Position>> deriveAllMoves() {
+        List<List<Position>> listHolder = new ArrayList<>();
+        List<Position> knightPositions = Knight.getKnightAttackPositions(position);
+        for (Position position : knightPositions) {
+            List<Position> moveList = new ArrayList<>();
+            moveList.add(position);
+            listHolder.add(moveList);
+        }
+        return listHolder;
     }
 }

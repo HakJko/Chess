@@ -7,17 +7,12 @@ import com.epam.ik.entity.pieces.Piece;
 
 import java.util.*;
 
-public class UndoMove
-{
+public class UndoMove {
     private final GameController GC;
     private final Board CHESS_BOARD;
     private final List<ChessBoardMoment> PREVIOUS_MOMENTS;
     private int moveNumber;
     private int highestMoveNumber;
-
-    enum Change {
-        UNDO
-    }
 
     public UndoMove(GameController gameController, Board CHESS_BOARD,
                     List<ChessBoardMoment> PREVIOUS_MOMENTS) {
@@ -27,10 +22,10 @@ public class UndoMove
     }
 
     public void undo() {
-        changeBoard(Change.UNDO);
+        changeBoard();
     }
 
-    private void changeBoard(Change change) {
+    private void changeBoard() {
         for (ChessBoardMoment c : PREVIOUS_MOMENTS) {
             Set<Position> blah = c.getChessPieces().keySet();
             Set<Position> sortedSet = new TreeSet<>();
@@ -38,10 +33,8 @@ public class UndoMove
                 sortedSet.add(p);
             }
         }
-        ChessBoardMoment desiredChessBoardMoment = null;
-        if (change == Change.UNDO) {
-            desiredChessBoardMoment = getRequiredMomentForUndo();
-        }
+        ChessBoardMoment desiredChessBoardMoment;
+        desiredChessBoardMoment = getRequiredMomentForUndo();
         setGameControllerStateInfo(desiredChessBoardMoment);
         setChessPieces(desiredChessBoardMoment);
         updateVisualBoard(getCurrentMoment().getChessPieces(), desiredChessBoardMoment.getChessPieces());
@@ -51,14 +44,11 @@ public class UndoMove
             GC.nullifyPieceAndPossibleMoves();
             CHESS_BOARD.resetAllBoardSquareColours();
         }
-        if (change == Change.UNDO)
-            moveNumber--;
+        moveNumber--;
     }
 
-    private void updateVisualBoard(
-            Map<Position, Piece> currentPieces,
-            Map<Position, Piece> intendedPieces)
-    {
+    private void updateVisualBoard(Map<Position, Piece> currentPieces,
+                                   Map<Position, Piece> intendedPieces) {
         Piece pieceToAdd;
         Piece pieceToDelete;
 
@@ -72,9 +62,6 @@ public class UndoMove
             if (!currentPositions.contains(intendedPosition)
                     || !intendedPieces.get(intendedPosition).equals(currentPieces.get(intendedPosition))) {
                 pieceToAdd = intendedPieces.get(intendedPosition);
-                if (!pieceToAdd.getPosition().equals(intendedPosition)) {
-                    assert false;
-                }
                 piecesToAdd.add(pieceToAdd);
             }
         }
@@ -82,15 +69,16 @@ public class UndoMove
             if (!intendedPositions.contains(currentPosition)
                     || !currentPieces.get(currentPosition).equals(intendedPieces.get(currentPosition))) {
                 pieceToDelete = currentPieces.get(currentPosition);
-                assert pieceToDelete.getPosition().equals(currentPosition);
                 piecesToDelete.add(pieceToDelete);
             }
         }
 
-        for (Piece piece : piecesToDelete)
+        for (Piece piece : piecesToDelete) {
             CHESS_BOARD.removePiece(piece.getPosition());
-        for (Piece piece : piecesToAdd)
+        }
+        for (Piece piece : piecesToAdd) {
             CHESS_BOARD.addPiece(piece);
+        }
     }
 
     private void trimPreviousMoments() {
@@ -104,24 +92,22 @@ public class UndoMove
     }
 
     private ChessBoardMoment getRequiredMomentForUndo() {
-        ChessBoardMoment retMoment = PREVIOUS_MOMENTS.get(moveNumber - 1);
-        return retMoment;
+        return PREVIOUS_MOMENTS.get(moveNumber - 1);
     }
 
     public int getHighestMoveNumber() {
         return highestMoveNumber;
     }
 
-    private void setChessPieces(ChessBoardMoment chessBoardMoment) {
-        Map<Position, Piece> chessPieces = chessBoardMoment.getChessPieces();
-        CHESS_BOARD.setChessPieces(chessPieces);
-    }
-
-    public void setHighestMoveNumber(int newMoveNumber)
-    {
+    public void setHighestMoveNumber(int newMoveNumber) {
         highestMoveNumber = newMoveNumber;
         moveNumber = newMoveNumber;
         trimPreviousMoments();
+    }
+
+    private void setChessPieces(ChessBoardMoment chessBoardMoment) {
+        Map<Position, Piece> chessPieces = chessBoardMoment.getChessPieces();
+        CHESS_BOARD.setChessPieces(chessPieces);
     }
 
     private void setGameControllerStateInfo(ChessBoardMoment chessBoardMoment) {

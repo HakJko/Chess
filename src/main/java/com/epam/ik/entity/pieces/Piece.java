@@ -1,13 +1,12 @@
 package com.epam.ik.entity.pieces;
 
 import com.epam.ik.entity.Position;
-import com.epam.ik.logic.Movement;
+import com.epam.ik.entity.pieces.impl.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Piece implements Movement
-{
+public abstract class Piece implements Movement {
     protected String pieceName;
     protected Colour colour;
     protected Position position;
@@ -19,33 +18,31 @@ public abstract class Piece implements Movement
     }
 
     public static final Piece createChessPiece(String name, Colour colour,
-                                               Position position)
-    {
-        if (name.equals("Pawn")){
+                                         Position position) {
+        if (name.equalsIgnoreCase("Pawn")) {
             return new Pawn(colour, position);
         }
 
-        if (name.equals("Rook")){
+        if (name.equalsIgnoreCase("Rook")) {
             return new Rook(colour, position);
         }
 
-        if (name.equals("Knight")) {
+        if (name.equalsIgnoreCase("Knight")) {
             return new Knight(colour, position);
         }
-        if (name.equals("Bishop")){
+        if (name.equalsIgnoreCase("Bishop")) {
             return new Bishop(colour, position);
         }
-        if (name.equals("Queen")) {
+        if (name.equalsIgnoreCase("Queen")) {
             return new Queen(colour, position);
         }
-        if (name.equals("King")){
+        if (name.equalsIgnoreCase("King")) {
             return new King(colour, position);
         }
         return null;
     }
 
-    protected static boolean addMove(List<Position> moveList, Position currentPosition, int xTrans, int yTrans)
-    {
+    protected static boolean addMove(List<Position> moveList, Position currentPosition, int xTrans, int yTrans) {
         Position subsequentPosition =
                 Position.createPosition(xTrans + currentPosition.getXCoord(),
                         yTrans + currentPosition.getYCoord());
@@ -59,44 +56,47 @@ public abstract class Piece implements Movement
     /*
      * To be used by Rooks and Queens.
      */
-    protected static void addStraightTranslations(List<List<Position>> listHolder, Position currentPosition)
-    {
+    protected static void addStraightTranslations(List<List<Position>> listHolder, Position currentPosition) {
         List<Position> moveListUp = new ArrayList<>();
+
         for (int yTrans = 1; ; yTrans++) {
             boolean result = addMove(moveListUp, currentPosition, 0, yTrans);
-            if (result == false) {
+            if (!result) {
                 break;
             }
         }
-        if (moveListUp.size() > 0){
+        if (moveListUp.size() > 0) {
             listHolder.add(moveListUp);
         }
 
         List<Position> moveListDown = new ArrayList<>();
         for (int yTrans = -1; ; yTrans--) {
             boolean result = addMove(moveListDown, currentPosition, 0, yTrans);
-            if (result == false)
+            if (!result) {
                 break;
+            }
         }
-        if (moveListDown.size() > 0){
+        if (moveListDown.size() > 0) {
             listHolder.add(moveListDown);
         }
 
         List<Position> moveListRight = new ArrayList<>();
         for (int xTrans = 1; ; xTrans++) {
             boolean result = addMove(moveListRight, currentPosition, xTrans, 0);
-            if (result == false)
+            if (!result) {
                 break;
+            }
         }
-        if (moveListRight.size() > 0){
+        if (moveListRight.size() > 0) {
             listHolder.add(moveListRight);
         }
 
         List<Position> moveListLeft = new ArrayList<>();
         for (int xTrans = -1; ; xTrans--) {
             boolean result = addMove(moveListLeft, currentPosition, xTrans, 0);
-            if (result == false)
+            if (!result) {
                 break;
+            }
         }
         if (moveListLeft.size() > 0) {
             listHolder.add(moveListLeft);
@@ -106,12 +106,11 @@ public abstract class Piece implements Movement
     /*
      * To be used by Bishops and Queens.
      */
-    protected static void addDiagonalTranslations(List<List<Position>> listHolder, Position currentPosition)
-    {
+    protected static void addDiagonalTranslations(List<List<Position>> listHolder, Position currentPosition) {
         List<Position> moveListNE = new ArrayList<>();
         for (int xTrans = 1, yTrans = 1; ; xTrans++, yTrans++) {
             boolean result = addMove(moveListNE, currentPosition, xTrans, yTrans);
-            if (result == false) {
+            if (!result) {
                 break;
             }
         }
@@ -123,7 +122,7 @@ public abstract class Piece implements Movement
         List<Position> moveListNW = new ArrayList<>();
         for (int xTrans = -1, yTrans = 1; ; xTrans--, yTrans++) {
             boolean result = addMove(moveListNW, currentPosition, xTrans, yTrans);
-            if (result == false) {
+            if (!result) {
                 break;
             }
         }
@@ -134,7 +133,7 @@ public abstract class Piece implements Movement
         List<Position> moveListSE = new ArrayList<>();
         for (int xTrans = 1, yTrans = -1; ; xTrans++, yTrans--) {
             boolean result = addMove(moveListSE, currentPosition, xTrans, yTrans);
-            if (result == false) {
+            if (!result) {
                 break;
             }
         }
@@ -145,7 +144,7 @@ public abstract class Piece implements Movement
         List<Position> moveListSW = new ArrayList<>();
         for (int xTrans = -1, yTrans = -1; ; xTrans--, yTrans--) {
             boolean result = addMove(moveListSW, currentPosition, xTrans, yTrans);
-            if (result == false) {
+            if (!result) {
                 break;
             }
         }
@@ -156,16 +155,18 @@ public abstract class Piece implements Movement
 
     @Override
     public boolean equals(Object candidate) {
-        if (this == candidate)
+        if (this == candidate) {
             return true;
+        }
 
-        if (!(candidate instanceof Piece))
+        if (!(candidate instanceof Piece)) {
             return false;
+        }
 
         Piece confirmed = (Piece) candidate;
 
-        return getPieceName().equals(confirmed.getPieceName())
-                && getColour().getName().equals(confirmed.getColour().getName())
+        return getPieceName().equalsIgnoreCase(confirmed.getPieceName())
+                && getColour().getName().equalsIgnoreCase(confirmed.getColour().getName())
                 && getPosition().equals(confirmed.getPosition());
     }
 
@@ -177,7 +178,7 @@ public abstract class Piece implements Movement
     @Override
     public Piece clone() {
         Piece newClass = null;
-        Class classType = getClass();
+        Class<? extends Piece> classType = getClass();
         if (classType == Bishop.class)
             newClass = new Bishop(getColour(), getPosition());
         else if (classType == King.class)
@@ -232,11 +233,12 @@ public abstract class Piece implements Movement
     public enum Colour {
         WHITE("White"), BLACK("Black");
 
-        private String name;
+        private final String name;
 
         Colour(String name) {
             this.name = name;
         }
+
         public String getName() {
             return name;
         }

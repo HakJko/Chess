@@ -4,24 +4,24 @@ import com.epam.ik.GameController;
 import com.epam.ik.entity.Board;
 import com.epam.ik.entity.Position;
 import com.epam.ik.entity.pieces.*;
+import com.epam.ik.entity.pieces.impl.Bishop;
+import com.epam.ik.entity.pieces.impl.Knight;
+import com.epam.ik.entity.pieces.impl.Queen;
+import com.epam.ik.entity.pieces.impl.Rook;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
-public class PawnReplacementChoice
-{
-    private Board chessBoard;
-    private GameController gameController;
+public class PawnReplacementChoice {
+    private final Board chessBoard;
+    private final GameController gameController;
     private JOptionPane optionPane;
     private JDialog dialog;
     private Piece pieceCurrentlyHeld;
-    private Position clickedPosition;
+    private final Position clickedPosition;
 
     public PawnReplacementChoice(Board chessBoard, GameController gameController,
-                                 Piece pieceCurrentlyHeld,Position clickedPosition) {
+                                 Piece pieceCurrentlyHeld, Position clickedPosition) {
         this.chessBoard = chessBoard;
         this.gameController = gameController;
         this.pieceCurrentlyHeld = pieceCurrentlyHeld;
@@ -32,11 +32,19 @@ public class PawnReplacementChoice
         JButton[] optionButtons = new JButton[4];
         for (int i = 0; i < 4; i++) {
             String choice = null;
-            switch(i) {
-                case 0: choice = "Bishop"; break;
-                case 1: choice = "Knight"; break;
-                case 2: choice = "Queen"; break;
-                case 3: choice = "Rook"; break;
+            switch (i) {
+                case 0:
+                    choice = "Bishop";
+                    break;
+                case 1:
+                    choice = "Knight";
+                    break;
+                case 2:
+                    choice = "Queen";
+                    break;
+                case 3:
+                    choice = "Rook";
+                    break;
             }
             JButton button = new JButton(choice);
             button.addActionListener(generateActionListener(choice));
@@ -64,14 +72,20 @@ public class PawnReplacementChoice
     }
 
     private void implementPawnReplacementChoice(String choice) {
-        if (choice.equals("Queen"))
-            pieceCurrentlyHeld = new Queen(pieceCurrentlyHeld.getColour(), clickedPosition);
-        else if (choice.equals("Knight"))
-            pieceCurrentlyHeld = new Knight(pieceCurrentlyHeld.getColour(), clickedPosition);
-        else if (choice.equals("Rook"))
-            pieceCurrentlyHeld = new Rook(pieceCurrentlyHeld.getColour(), clickedPosition);
-        else if (choice.equals("Bishop"))
-            pieceCurrentlyHeld = new Bishop(pieceCurrentlyHeld.getColour(), clickedPosition);
+        switch (choice) {
+            case "Queen":
+                pieceCurrentlyHeld = new Queen(pieceCurrentlyHeld.getColour(), clickedPosition);
+                break;
+            case "Knight":
+                pieceCurrentlyHeld = new Knight(pieceCurrentlyHeld.getColour(), clickedPosition);
+                break;
+            case "Rook":
+                pieceCurrentlyHeld = new Rook(pieceCurrentlyHeld.getColour(), clickedPosition);
+                break;
+            case "Bishop":
+                pieceCurrentlyHeld = new Bishop(pieceCurrentlyHeld.getColour(), clickedPosition);
+                break;
+        }
         chessBoard.setPieceAtPosition(clickedPosition, pieceCurrentlyHeld);
         chessBoard.movePiece(pieceCurrentlyHeld, clickedPosition);
         gameController.determineIfCurrentPlayerIsInCheck();

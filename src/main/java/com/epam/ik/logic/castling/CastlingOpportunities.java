@@ -1,49 +1,50 @@
 package com.epam.ik.logic.castling;
 
-public class CastlingOpportunities
-{
-    private boolean whiteKingCanCastleLeft;
-    private boolean whiteKingCanCastleRight;
-    private boolean blackKingCanCastleLeft;
-    private boolean blackKingCanCastleRight;
-
+public class CastlingOpportunities {
     public static Boolean nextWhiteKingCanCastleLeft = false;
     public static Boolean nextWhiteKingCanCastleRight = false;
     public static Boolean nextBlackKingCanCastleLeft = false;
     public static Boolean nextBlackKingCanCastleRight = false;
+    private final boolean whiteKingCanCastleLeft;
+    private final boolean whiteKingCanCastleRight;
+    private final boolean blackKingCanCastleLeft;
+    private final boolean blackKingCanCastleRight;
 
     public CastlingOpportunities(Boolean whiteKingCanCastleLeft,
-                                 Boolean whiteKingCanCastleRight, Boolean blackKingCanCastleLeft,
-                                 Boolean blackKingCanCastleRight)
-    {
+                                 Boolean whiteKingCanCastleRight,
+                                 Boolean blackKingCanCastleLeft,
+                                 Boolean blackKingCanCastleRight) {
         if (whiteKingCanCastleLeft == null) {
             this.whiteKingCanCastleLeft = Boolean.TRUE.equals(nextWhiteKingCanCastleLeft);
             nextWhiteKingCanCastleLeft = null;
-        }
-        else {
-            nextWhiteKingCanCastleLeft = this.whiteKingCanCastleLeft = whiteKingCanCastleLeft.booleanValue();
+        } else {
+            nextWhiteKingCanCastleLeft = this.whiteKingCanCastleLeft = whiteKingCanCastleLeft;
         }
         if (whiteKingCanCastleRight == null) {
             this.whiteKingCanCastleRight = Boolean.TRUE.equals(nextWhiteKingCanCastleRight);
             nextWhiteKingCanCastleRight = null;
-        }
-        else {
-            nextWhiteKingCanCastleRight = this.whiteKingCanCastleRight = whiteKingCanCastleRight.booleanValue();
+        } else {
+            nextWhiteKingCanCastleRight = this.whiteKingCanCastleRight = whiteKingCanCastleRight;
         }
         if (blackKingCanCastleLeft == null) {
             this.blackKingCanCastleLeft = Boolean.TRUE.equals(nextBlackKingCanCastleLeft);
             nextBlackKingCanCastleLeft = null;
-        }
-        else {
-            nextBlackKingCanCastleLeft = this.blackKingCanCastleLeft = blackKingCanCastleLeft.booleanValue();
+        } else {
+            nextBlackKingCanCastleLeft = this.blackKingCanCastleLeft = blackKingCanCastleLeft;
         }
         if (blackKingCanCastleRight == null) {
             this.blackKingCanCastleRight = Boolean.TRUE.equals(nextBlackKingCanCastleRight);
             nextBlackKingCanCastleRight = null;
+        } else {
+            nextBlackKingCanCastleRight = this.blackKingCanCastleRight = blackKingCanCastleRight;
         }
-        else {
-            nextBlackKingCanCastleRight = this.blackKingCanCastleRight = blackKingCanCastleRight.booleanValue();
-        }
+    }
+
+    public static void resetStaticVariables() {
+        nextWhiteKingCanCastleLeft = false;
+        nextWhiteKingCanCastleRight = false;
+        nextBlackKingCanCastleLeft = false;
+        nextBlackKingCanCastleRight = false;
     }
 
     @Override
@@ -56,7 +57,7 @@ public class CastlingOpportunities
             return false;
         }
 
-        CastlingOpportunities confirmed = (CastlingOpportunities)candidate;
+        CastlingOpportunities confirmed = (CastlingOpportunities) candidate;
         return whiteKingCanCastleLeft == confirmed.isWhiteKingCanCastleLeft()
                 && whiteKingCanCastleRight == confirmed.isWhiteKingCanCastleRight()
                 && blackKingCanCastleLeft == confirmed.isBlackKingCanCastleLeft()
@@ -89,12 +90,5 @@ public class CastlingOpportunities
         return blackKingCanCastleRight;
     }
 
-    public static void resetStaticVariables() {
-        nextWhiteKingCanCastleLeft = false;
-        nextWhiteKingCanCastleRight = false;
-        nextBlackKingCanCastleLeft = false;
-        nextBlackKingCanCastleRight = false;
-    }
 
-    
 }

@@ -4,21 +4,17 @@ import com.epam.ik.GameController;
 import com.epam.ik.entity.Board;
 import com.epam.ik.entity.Position;
 import com.epam.ik.entity.pieces.*;
+import com.epam.ik.entity.pieces.impl.*;
 import com.epam.ik.logic.castling.CastlingOpportunities;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Checker
-{
-    private GameController gc;
+public class Checker {
+    private final GameController gc;
     private int previousNumberOfChessPieces = 32;
     private int remainingNumberOfMoves = 100;
-    private List<ChessBoardMoment> previousMoments = new ArrayList<>();
-
-    public enum StalemateOption {
-        MANDATORY_PLAYER_CANT_MOVE, MANDATORY_TOO_FEW_PIECES,
-        OPTIONAL_THREE_FOLD, OPTIONAL_FIFTY_MOVE, NOT_STALEMATE};
+    private final List<ChessBoardMoment> previousMoments = new ArrayList<>();
 
     public Checker(GameController gameController) {
         gc = gameController;
@@ -50,8 +46,9 @@ public class Checker
         List<Piece> playersPieces = gc.getChessBoard().getPlayersPieces(currentPlayerToMove);
         for (Piece piece : playersPieces) {
             List<Position> allowedMoves = gc.getAllowedMovesForPiece(piece);
-            if (allowedMoves.size() > 0)
+            if (allowedMoves.size() > 0) {
                 return true;
+            }
         }
         return false;
     }
@@ -65,21 +62,24 @@ public class Checker
 
             List<Piece> playersPieces = chessBoard.getPlayersPieces(player);
             for (Piece piece : playersPieces) {
-                if (piece instanceof King)
+                if (piece instanceof King) {
                     continue;
-                if (piece instanceof Queen || piece instanceof Rook || piece instanceof Pawn)
+                }
+                if (piece instanceof Queen || piece instanceof Rook || piece instanceof Pawn) {
                     return false;
+                }
 
                 if (piece instanceof Knight) {
                     knightCount++;
-                    if (knightCount > 2)
+                    if (knightCount > 2) {
                         return false;
-                }
-                else {
+                    }
+                } else {
                     Piece.Colour bishopSquareColour = Board.getColourOfSquareAtPosition(piece.getPosition());
                     if (existingBishopSquareColour != null &&
-                            !bishopSquareColour.equals(existingBishopSquareColour))
+                            !bishopSquareColour.equals(existingBishopSquareColour)) {
                         return false;
+                    }
                     existingBishopSquareColour = bishopSquareColour;
                 }
             }
@@ -87,8 +87,7 @@ public class Checker
         return true;
     }
 
-    private boolean threeFoldRepetition()
-    {
+    private boolean threeFoldRepetition() {
         if (previousMoments.size() < 9) {
             return false;
         }
@@ -124,6 +123,11 @@ public class Checker
 
     public List<ChessBoardMoment> getPreviousMoments() {
         return previousMoments;
+    }
+
+    public enum StalemateOption {
+        MANDATORY_PLAYER_CANT_MOVE, MANDATORY_TOO_FEW_PIECES,
+        OPTIONAL_THREE_FOLD, OPTIONAL_FIFTY_MOVE, NOT_STALEMATE
     }
 
 }

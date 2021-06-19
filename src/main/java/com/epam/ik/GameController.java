@@ -3,6 +3,7 @@ package com.epam.ik;
 import com.epam.ik.entity.Board;
 import com.epam.ik.entity.Position;
 import com.epam.ik.entity.pieces.*;
+import com.epam.ik.entity.pieces.impl.*;
 import com.epam.ik.logic.*;
 import com.epam.ik.logic.castling.CastlingOpportunities;
 import com.epam.ik.logic.castling.CastlingPiecesMovementTracker;
@@ -18,12 +19,19 @@ import static com.epam.ik.logic.Checker.StalemateOption;
 public final class GameController {
 
     private GameControllerStateInfo gcState = new GameControllerStateInfo();
-    private Board chessBoard;
+    private final Board chessBoard;
     private Checker stalemateChecker;
     private UndoMove undoMove;
     private EndGame endGame;
     private Piece pieceCurrentlyHeld;
     private List<Position> possibleMoves;
+
+    public GameController() {
+        chessBoard = new Board(this);
+        stalemateChecker = new Checker(this);
+        undoMove = new UndoMove(this, getChessBoard(), stalemateChecker.getPreviousMoments());
+        endGame = new EndGame(chessBoard);
+    }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
@@ -32,13 +40,6 @@ public final class GameController {
 
             gc.go();
         });
-    }
-
-    public GameController() {
-        chessBoard = new Board(this);
-        stalemateChecker = new Checker(this);
-        undoMove = new UndoMove(this, getChessBoard(), stalemateChecker.getPreviousMoments());
-        endGame = new EndGame(chessBoard);
     }
 
     private void go() {
@@ -76,7 +77,7 @@ public final class GameController {
         attemptToCaptureSquare(clickedPosition);
     }
 
-    private void attemptPiecePlacement(Position clickedPosition) throws CloneNotSupportedException {
+    private void attemptPiecePlacement(Position clickedPosition) {
 
         if (!possibleMoves.contains(clickedPosition)) {
             return;
@@ -92,11 +93,11 @@ public final class GameController {
 
         moveCurrentlyHeldPiece(clickedPosition);
 
-        if (pieceCurrentlyHeld instanceof Pawn ||
-                stalemateChecker.getPreviousNumberOfChessPieces() != chessBoard.getNumberOfChessPieces()) {
+        if (pieceCurrentlyHeld instanceof Pawn
+                || stalemateChecker.getPreviousNumberOfChessPieces()
+                != chessBoard.getNumberOfChessPieces()) {
             stalemateChecker.resetToFiftyMoves();
-        }
-        else {
+        } else {
             stalemateChecker.decrementRemainingMoveNumber();
         }
 
@@ -139,8 +140,7 @@ public final class GameController {
         if (pieceCurrentlyHeld instanceof King &&
                 Math.abs(pieceCurrentlyHeld.getPosition().getXCoord() - clickedPosition.getXCoord()) == 2) {
             performCastling(clickedPosition);
-        }
-        else {
+        } else {
             if (pieceCurrentlyHeld instanceof Pawn && clickedPosition.equals(positionOfPawnAfterEnPassant)) {
                 // Remove the piece from the board including its image
                 chessBoard.removePiece(localEnPassantPositionCopy);
@@ -161,13 +161,14 @@ public final class GameController {
         // If the piece that moved is a Pawn now on the final square, the user must choose a replacement piece
         if (pieceCurrentlyHeld instanceof Pawn &&
                 clickedPosition.getYCoord() == ((gcState.getCurrentPlayerToMove() == Colour.WHITE) ? 8 : 1)) {
-            chessBoard.replacePawnWithUserChoice((Pawn)pieceCurrentlyHeld, clickedPosition);
+            chessBoard.replacePawnWithUserChoice((Pawn) pieceCurrentlyHeld, clickedPosition);
         }
     }
 
     private void attemptToPickUpPiece(Piece clickedPiece) {
-        if (clickedPiece.getColour() != gcState.currentPlayerToMove)
+        if (clickedPiece.getColour() != gcState.currentPlayerToMove) {
             return;
+        }
         pieceCurrentlyHeld = clickedPiece;
         chessBoard.pieceToChessArraySquare(clickedPiece.getPosition()).setBackground(Color.BLUE);
         this.possibleMoves = getAllowedMovesForPiece(clickedPiece);
@@ -181,11 +182,10 @@ public final class GameController {
             }
             this.possibleMoves = possibleMovesThatBlockCheck;
 
-            if (gcState.getCheckBlockingMoves() != null && gcState.checkBlockingMoves.contains(gcState.enPassantPosition))
-            {
+            if (gcState.getCheckBlockingMoves() != null && gcState.checkBlockingMoves.contains(gcState.enPassantPosition)) {
                 if (clickedPiece instanceof Pawn &&
-                        ((Pawn)clickedPiece).adjacentToEnPassantPosition(gcState.enPassantPosition)) {
-                    possibleMoves.add(((Pawn)clickedPiece).finalPositionAfterEnPassant(gcState.enPassantPosition));
+                        ((Pawn) clickedPiece).adjacentToEnPassantPosition(gcState.enPassantPosition)) {
+                    possibleMoves.add(((Pawn) clickedPiece).finalPositionAfterEnPassant(gcState.enPassantPosition));
                 }
             }
         }
@@ -202,8 +202,7 @@ public final class GameController {
         List<Position> checkedLine;
         if ((checkedLine = getCheckedLine(clickedPiece)) != null) {
             possibleMoves = addPositionsOnCheckedLine(initialPossibleMoves, checkedLine);
-        }
-        else {
+        } else {
             for (List<Position> moveList : initialPossibleMoves) {
                 for (Position proposedPosition : moveList) {
                     if (chessBoard.getPieceAtPosition(proposedPosition) != null) {
@@ -232,7 +231,7 @@ public final class GameController {
     private List<Position> getCheckedLine(Piece clickedPiece) {
         King ownKing = chessBoard.getKing(gcState.currentPlayerToMove);
         boolean isDiagonalLine = false;
-        List<Position> line = calculateSharedOpenLine(ownKing, clickedPiece, isDiagonalLine);
+        List<Position> line = calculateSharedOpenLine(ownKing, clickedPiece);
         if (line == null)
             return null;
         for (Position p : line) {
@@ -241,8 +240,7 @@ public final class GameController {
                 if (isDiagonalLine) {
                     if (threateningPiece instanceof Bishop || threateningPiece instanceof Queen)
                         return line;
-                }
-                else {
+                } else {
                     if (threateningPiece instanceof Rook || threateningPiece instanceof Queen)
                         return line;
                 }
@@ -252,7 +250,7 @@ public final class GameController {
         return null;
     }
 
-    private List<Position> calculateSharedOpenLine(King king, Piece piece, boolean isDiagonalLine) {
+    private List<Position> calculateSharedOpenLine(King king, Piece piece) {
         int xDiff = piece.getPosition().getXCoord() - king.getPosition().getXCoord();
         int yDiff = piece.getPosition().getYCoord() - king.getPosition().getYCoord();
         if (!(xDiff == 0 || yDiff == 0 || Math.abs(xDiff) == Math.abs(yDiff)))
@@ -260,10 +258,7 @@ public final class GameController {
 
         int xInc, yInc;
 
-        if (xDiff == 0 || yDiff == 0)
-            isDiagonalLine=(false);
-        else
-            isDiagonalLine=(true);
+        boolean isDiagonalLine = xDiff != 0 && yDiff != 0;
 
         if (xDiff > 0)
             xInc = 1;
@@ -370,7 +365,7 @@ public final class GameController {
     private void addSpecialCases(List<Position> possibleMoves, Piece clickedPiece) {
         Position clickedPiecePos = clickedPiece.getPosition();
         if (clickedPiece instanceof King) {
-            if (clickedPiece.hasMoved()	|| gcState.currentPlayerIsInCheck)
+            if (clickedPiece.hasMoved() || gcState.currentPlayerIsInCheck)
                 return;
 
             Position reqKingPosition = Position.createPosition(King.KING_POS,
@@ -381,7 +376,7 @@ public final class GameController {
             for (int direction = -1; direction < 2; direction += 2) {
                 Position rookPosition = Position.createPosition((direction == -1) ? 1 : 8,
                         clickedPiecePos.getYCoord());
-                if (canCastleBetweenPositions(reqKingPosition, rookPosition, direction)) {
+                if (canCastleBetweenPositions(rookPosition, direction)) {
                     possibleMoves.add(Position.createPosition(King.KING_POS + 2 * direction,
                             clickedPiecePos.getYCoord()));
                 }
@@ -389,7 +384,7 @@ public final class GameController {
         }
 
         if (gcState.getEnPassantPosition() != null && clickedPiece instanceof Pawn) {
-            Pawn clickedPawn = (Pawn)clickedPiece;
+            Pawn clickedPawn = (Pawn) clickedPiece;
             int requiredYCoord = (gcState.getCurrentPlayerToMove() == Colour.WHITE) ? 5 : 4;
             if (clickedPiecePos.getYCoord() != requiredYCoord)
                 return;
@@ -406,7 +401,7 @@ public final class GameController {
         possibleMoves = null;
     }
 
-    private void attemptToCaptureSquare(Position clickedPosition) throws CloneNotSupportedException {
+    private void attemptToCaptureSquare(Position clickedPosition) {
         if (clickedPosition.equals(pieceCurrentlyHeld.getPosition())) {
             replacePiece(clickedPosition);
             return;
@@ -428,13 +423,11 @@ public final class GameController {
         }
 
         List<List<Position>> threateningLines = getThreateningLines(position);
-        if (threateningLines.size() > 0)
-            return true;
-        return false;
+        return threateningLines.size() > 0;
     }
 
     private List<List<Position>> getThreateningLines(Position position) {
-        int x , y;
+        int x, y;
         List<List<Position>> listHolder = new ArrayList<>();
         for (int xDisp = -1; xDisp < 2; xDisp++) {
             for (int yDisp = -1; yDisp < 2; yDisp++) {
@@ -444,7 +437,7 @@ public final class GameController {
                 }
                 x = position.getXCoord() + xDisp;
                 y = position.getYCoord() + yDisp;
-                for (;; x += xDisp, y += yDisp) {
+                for (; ; x += xDisp, y += yDisp) {
                     Position nextPosition = Position.createPosition(x, y);
                     if (nextPosition == null) {
                         break;
@@ -468,12 +461,11 @@ public final class GameController {
                             line.add(nextPosition);
                             listHolder.add(line);
                         }
-                    }
-                    else {
+                    } else {
                         if (threateningPiece instanceof Bishop || threateningPiece instanceof Queen
                                 || (threateningPiece instanceof King && (Math.abs(position.getXCoord() - x) == 1
                                 && Math.abs(position.getYCoord() - y) == 1))
-                                || threateningPiece instanceof Pawn && isThreateningPawn((Pawn)threateningPiece, position)) {
+                                || threateningPiece instanceof Pawn && isThreateningPawn((Pawn) threateningPiece, position)) {
                             line.add(nextPosition);
                             listHolder.add(line);
                         }
@@ -495,11 +487,8 @@ public final class GameController {
             return false;
         }
 
-        if (pawn.getColour() == Colour.BLACK && yDiff == 1
-                || pawn.getColour() == Colour.WHITE && yDiff == -1) {
-            return true;
-        }
-        return false;
+        return pawn.getColour() == Colour.BLACK && yDiff == 1
+                || pawn.getColour() == Colour.WHITE && yDiff == -1;
     }
 
     private void resetColoursAfterMove() {
@@ -530,12 +519,13 @@ public final class GameController {
     private void checkForStalemate() {
         StalemateOption stalemateOption = stalemateChecker.isStalemate();
         if (stalemateOption == StalemateOption.MANDATORY_PLAYER_CANT_MOVE
-                || stalemateOption == StalemateOption.MANDATORY_TOO_FEW_PIECES)
+                || stalemateOption == StalemateOption.MANDATORY_TOO_FEW_PIECES) {
             endGame.declareMandatoryStalemate(stalemateOption, gcState.currentPlayerToMove);
-        else if (stalemateOption == StalemateOption.OPTIONAL_THREE_FOLD
-                || stalemateOption == StalemateOption.OPTIONAL_FIFTY_MOVE)
+        } else if (stalemateOption == StalemateOption.OPTIONAL_THREE_FOLD
+                || stalemateOption == StalemateOption.OPTIONAL_FIFTY_MOVE) {
             endGame.informThatPlayerMayDeclareStalemate(stalemateOption,
                     gcState.getCurrentPlayerToMove() == Colour.WHITE ? Colour.BLACK : Colour.WHITE);
+        }
     }
 
     private boolean isCheckmate() {
@@ -562,8 +552,9 @@ public final class GameController {
                 gcState.checkBlockingMoves.add(knightPosition);
         }
 
-        if (possibleKingMoves.size() > 0)
+        if (possibleKingMoves.size() > 0) {
             return false;
+        }
 
         List<Piece> currentPlayersPieces = chessBoard.getPlayersPieces(gcState.currentPlayerToMove);
         for (Piece chessPiece : currentPlayersPieces) {
@@ -586,7 +577,7 @@ public final class GameController {
                 if (!(friendlyPawn instanceof Pawn))
                     continue;
                 List<Position> pawnAllowedMoves = getAllowedMovesForPiece(friendlyPawn);
-                if (pawnAllowedMoves.contains(((Pawn)friendlyPawn).finalPositionAfterEnPassant(gcState.enPassantPosition)))
+                if (pawnAllowedMoves.contains(((Pawn) friendlyPawn).finalPositionAfterEnPassant(gcState.enPassantPosition)))
                     return false;
             }
         }
@@ -646,7 +637,7 @@ public final class GameController {
             for (int direction = -1; direction < 2; direction += 2, counter++) {
                 Position rookPosition = Position.createPosition((direction == -1) ? 1 : 8,
                         yCoord);
-                if (canCastleBetweenPositions(reqKingPosition, rookPosition, direction)) {
+                if (canCastleBetweenPositions(rookPosition, direction)) {
                     castlingOpportunitiesArray[counter] = true;
                 }
             }
@@ -657,21 +648,19 @@ public final class GameController {
         return new CastlingOpportunities(castlingOpportunitiesArray[0], castlingOpportunitiesArray[1], castlingOpportunitiesArray[3], castlingOpportunitiesArray[2]);
     }
 
-    private boolean canCastleBetweenPositions(Position kingPosition, Position rookPosition, int direction) {
+    private boolean canCastleBetweenPositions(Position rookPosition, int direction) {
         Piece potentialRook = chessBoard.getPieceAtPosition(rookPosition);
-        if (potentialRook == null || !(potentialRook instanceof Rook) || potentialRook.hasMoved())
+        if (potentialRook == null || !(potentialRook instanceof Rook) || potentialRook.hasMoved()) {
             return false;
+        }
         for (int i = 1; i < 3; i++) {
             Position nextSquare = Position.createPosition(King.KING_POS + i * direction,
                     rookPosition.getYCoord());
             if (chessBoard.getPieceAtPosition(nextSquare) != null || positionIsChecked(nextSquare))
                 return false;
         }
-        if (direction == -1 &&
-                chessBoard.getPieceAtPosition(Position.createPosition(2, rookPosition.getYCoord())) != null) {
-            return false;
-        }
-        return true;
+        return direction != -1 ||
+                chessBoard.getPieceAtPosition(Position.createPosition(2, rookPosition.getYCoord())) == null;
     }
 
     private CastlingPiecesMovementTracker constructCastlingPiecesMovementTracker() {
@@ -692,6 +681,7 @@ public final class GameController {
         }
         return new CastlingPiecesMovementTracker(inputs);
     }
+
     private List<Position> duplicateArrayList(List<Position> listToDuplicate) {
         List<Position> retList = new ArrayList<>();
         if (listToDuplicate == null)

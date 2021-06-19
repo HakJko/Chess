@@ -1,12 +1,12 @@
-package com.epam.ik.entity.pieces;
+package com.epam.ik.entity.pieces.impl;
 
 import com.epam.ik.entity.Position;
+import com.epam.ik.entity.pieces.Piece;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Pawn extends Piece
-{
+public class Pawn extends Piece {
     public Pawn(Colour colour, Position position) {
         super(colour, position);
         pieceName = colour.getName() + "Pawn";
@@ -21,8 +21,7 @@ public class Pawn extends Piece
 
         if (position.getYCoord() == 2 && colour == Colour.WHITE) {
             Piece.addMove(moveList1, position, 0, 2);
-        }
-        else if (position.getYCoord() == 7 && colour == Colour.BLACK) {
+        } else if (position.getYCoord() == 7 && colour == Colour.BLACK) {
             Piece.addMove(moveList1, position, 0, -2);
         }
 

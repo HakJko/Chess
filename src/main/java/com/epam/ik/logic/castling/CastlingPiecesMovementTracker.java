@@ -1,13 +1,12 @@
 package com.epam.ik.logic.castling;
 
-public class CastlingPiecesMovementTracker
-{
-    private boolean whiteLeftCastleHasMoved;
-    private boolean whiteKingHasMoved;
-    private boolean whiteRightCastleHasMoved;
-    private boolean blackLeftCastleHasMoved;
-    private boolean blackKingHasMoved;
-    private boolean blackRightKingHasMoved;
+public class CastlingPiecesMovementTracker {
+    private final boolean whiteLeftCastleHasMoved;
+    private final boolean whiteKingHasMoved;
+    private final boolean whiteRightCastleHasMoved;
+    private final boolean blackLeftCastleHasMoved;
+    private final boolean blackKingHasMoved;
+    private final boolean blackRightKingHasMoved;
 
     public CastlingPiecesMovementTracker(boolean[] inputs) {
         this.whiteLeftCastleHasMoved = inputs[0];

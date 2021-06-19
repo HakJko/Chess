@@ -1,15 +1,13 @@
 package com.epam.ik.logic;
 
 import com.epam.ik.entity.Position;
-import com.epam.ik.entity.pieces.Piece;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.epam.ik.entity.pieces.Piece.Colour;
 
-public class GameControllerStateInfo
-{
+public class GameControllerStateInfo {
     public Colour currentPlayerToMove;
     public boolean currentPlayerIsInCheck;
     public Position enPassantPosition;
@@ -32,12 +30,13 @@ public class GameControllerStateInfo
     }
 
     @Override
-    public GameControllerStateInfo clone() throws CloneNotSupportedException {
+    public GameControllerStateInfo clone() {
         List<Position> newCheckBlockingMoves = null;
         if (checkBlockingMoves != null) {
             newCheckBlockingMoves = new ArrayList<>();
-            for (Position p : checkBlockingMoves)
+            for (Position p : checkBlockingMoves) {
                 newCheckBlockingMoves.add(p);
+            }
         }
         return new GameControllerStateInfo(currentPlayerToMove, newCheckBlockingMoves, currentPlayerIsInCheck, enPassantPosition, moveNumber);
     }

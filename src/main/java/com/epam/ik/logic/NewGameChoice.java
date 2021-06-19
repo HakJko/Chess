@@ -4,9 +4,8 @@ import com.epam.ik.entity.Board;
 
 import javax.swing.*;
 
-public class NewGameChoice
-{
-    private Board chessBoard;
+public class NewGameChoice {
+    private final Board chessBoard;
 
     public NewGameChoice(Board chessBoard) {
         this.chessBoard = chessBoard;

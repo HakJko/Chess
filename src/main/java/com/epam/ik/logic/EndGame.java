@@ -4,10 +4,7 @@ import javax.swing.*;
 
 import static com.epam.ik.entity.pieces.Piece.Colour;
 
-public class EndGame
-{
-    private JFrame chessBoard;
-    private boolean gameOver = false;
+public class EndGame {
     private static final String WHITE_CHECKMATE = "White has checkmated Black.";
     private static final String BLACK_CHECKMATE = "Black has checkmated White.";
     private static final String PLAYER_CANT_MOVE_STALEMATE = " has no moves available, so the game ends in stalemate.";
@@ -18,6 +15,8 @@ public class EndGame
     private static final String FIFTY_MOVE_MSG_START = "Fifty moves have taken place without any pieces "
             + "being taken, or a pawn being moved. ";
     private static final String OPTIONAL_MSG_END = " may declare stalemate.";
+    private final JFrame chessBoard;
+    private boolean gameOver = false;
 
     public EndGame(JFrame chessBoard) {
         this.chessBoard = chessBoard;
@@ -35,20 +34,25 @@ public class EndGame
 
     public void declareMandatoryStalemate(Checker.StalemateOption stalemateOption, Colour currentPlayerToMove) {
         gameOver = true;
-        String message = null;
-        if (stalemateOption == Checker.StalemateOption.MANDATORY_PLAYER_CANT_MOVE)
+        String message;
+        if (stalemateOption == Checker.StalemateOption.MANDATORY_PLAYER_CANT_MOVE) {
             message = currentPlayerToMove.getName() + PLAYER_CANT_MOVE_STALEMATE;
-        else
+        }
+        else {
             message = TOO_FEW_PIECES_STALEMATE;
+        }
         JOptionPane.showMessageDialog(chessBoard, message);
     }
 
     public void informThatPlayerMayDeclareStalemate(Checker.StalemateOption stalemateOption, Colour playerToChoose) {
         String message;
-        if (stalemateOption == Checker.StalemateOption.OPTIONAL_THREE_FOLD)
+        if (stalemateOption == Checker.StalemateOption.OPTIONAL_THREE_FOLD) {
             message = THREE_FOLD_MSG_START + playerToChoose.getName() + OPTIONAL_MSG_END;
-        else
+        }
+        else {
             message = FIFTY_MOVE_MSG_START + playerToChoose.getName() + OPTIONAL_MSG_END;
+        }
+
         Object[] options = {"Declare stalemate", "Continue"};
         int n = JOptionPane.showOptionDialog(chessBoard,
                 message,

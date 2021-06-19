@@ -1,12 +1,12 @@
-package com.epam.ik.entity.pieces;
+package com.epam.ik.entity.pieces.impl;
 
 import com.epam.ik.entity.Position;
+import com.epam.ik.entity.pieces.Piece;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class King extends Piece
-{
+public class King extends Piece {
     public static final int KING_POS = 5;
 
     public King(Colour colour, Position position) {

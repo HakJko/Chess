@@ -1,9 +1,8 @@
 package com.epam.ik.entity;
 
-public class Position implements Comparable<Position>
-{
-    private int xCoord;
-    private int yCoord;
+public class Position implements Comparable<Position> {
+    private final int xCoord;
+    private final int yCoord;
 
     private Position(int xCoord, int yCoord) {
         this.xCoord = xCoord;
@@ -23,7 +22,7 @@ public class Position implements Comparable<Position>
         if (!(o instanceof Position)) {
             return false;
         }
-        Position p = (Position)o;
+        Position p = (Position) o;
         return p.getXCoord() == getXCoord() && p.getYCoord() == getYCoord();
     }
 
